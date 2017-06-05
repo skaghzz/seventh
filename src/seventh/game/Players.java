@@ -185,71 +185,92 @@ public class Players implements PlayerInfos {
      */
     @Override
     public Player getRandomAlivePlayer() {        
-        int size = players.length;
-        int startingIndex = random.nextInt(size);
-        
-        for(int i = 0; i < size; i++) {
-            Player player = players[(startingIndex + i) % size];
-            if(player != null && player.isAlive()) {
+        int startingIndex = random.nextInt(players.length);
+        return findAlivePlayer(startingIndex);
+    }
+    
+    public Player findAlivePlayer(int start){
+    	int PlayerSize = players.length;
+        for(int i = 0; i < PlayerSize; i++) {
+            Player player = players[(start + i) % PlayerSize];
+            if(isAlivePlayer(player)) {
                 return player;
             }
         }
         return null;
     }
     
+    public boolean isAlivePlayer(Player player){
+    	return player != null && player.isAlive();
+    }
+    
     /* (non-Javadoc)
      * @see seventh.game.PlayerInfos#getPrevAlivePlayerFrom(seventh.game.Player)
      */
+    
+    
     @Override
     public Player getPrevAlivePlayerFrom(Player oldPlayer) {
         if(oldPlayer == null ) return getRandomAlivePlayer();
-        
-        int nextPlayerIndex = (oldPlayer.getId() - 1) % players.length;
-        if(nextPlayerIndex < 0) {
-            nextPlayerIndex = Math.max(players.length - 1, 0);
-        }
-        
+        int PlayerSize = players.length;
+        int nextPlayerIndex = SetNextPlayerIndex(oldPlayer, PlayerSize);
+        return findPrevAlivePlayer(nextPlayerIndex, oldPlayer, PlayerSize);
+    }
+    
+    public Player findPrevAlivePlayer(int nextPlayerIndex, Player oldPlayer, int PlayerSize){
         for(int i = 0; i < this.players.length; i++) {
             Player player = this.players[nextPlayerIndex];
-            if(player != null) {
-                if(player.isAlive() && player != oldPlayer) {
-                    return player;
-                }
+            if(isAlivePlayer(player, oldPlayer)) {
+                return player;
             }
-            
-            nextPlayerIndex = (nextPlayerIndex - 1) % players.length;
-            if(nextPlayerIndex < 0) {
-                nextPlayerIndex = Math.max(players.length - 1, 0);
-            }
+            nextPlayerIndex = changePlayerIndex(nextPlayerIndex, PlayerSize);
         }
-        
-        
         return null;
-    
     }
+    
+    public boolean isAlivePlayer(Player player, Player oldPlayer){
+    	return player != null && player.isAlive() && player != oldPlayer;
+    }
+    
+    
+    public int SetNextPlayerIndex(Player oldPlayer, int PlayerSize){
+    	int nextPlayerIndex = (oldPlayer.getId() -1) % PlayerSize;
+    	return isUnderPlayerIndex(nextPlayerIndex, PlayerSize);
+    }
+    
+    public int changePlayerIndex(int nextPlayerIndex, int PlayerSize){
+    	int nextIndex = nextPlayerIndex;
+    	return isUnderPlayerIndex(nextIndex, PlayerSize);
+    }
+    
+    public int isUnderPlayerIndex(int nextPlayerIndex, int PlayerSize){
+    	if(nextPlayerIndex < 0)
+    	    return Math.max(PlayerSize-1, 0);
+    	return nextPlayerIndex;
+    }
+    
     
     /* (non-Javadoc)
      * @see seventh.game.PlayerInfos#getNextAlivePlayerFrom(seventh.game.Player)
      */
     @Override
     public Player getNextAlivePlayerFrom(Player oldPlayer) {
-        if(oldPlayer == null ) return getRandomAlivePlayer();
+        if(oldPlayer == null )
+            return getRandomAlivePlayer();
         
         int nextPlayerIndex = (oldPlayer.getId() + 1) % players.length;
-        
+        return findNextAlivePlayerFrom(nextPlayerIndex, oldPlayer);
+    }
+    
+    
+    public Player findNextAlivePlayerFrom(int nextPlayerIndex, Player oldPlayer){
         for(int i = 0; i < this.players.length; i++) {
             Player player = this.players[nextPlayerIndex];
-            if(player != null) {
-                        
-                if(player.isAlive() && player != oldPlayer) {
-                    return player;
-                }
+            if(isAlivePlayer(player, oldPlayer)) {
+                return player;
             }    
-            
             nextPlayerIndex = (nextPlayerIndex + 1) % players.length;
-        }
-        
-        
+        } 
         return null;
     }
     
