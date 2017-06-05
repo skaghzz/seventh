@@ -158,18 +158,30 @@ public class ClientPlayerEntity extends ClientControllableEntity {
     public void setPlayer(ClientPlayer player) {
         this.player = player;
         if(player != null) {            
-            WEAPONS[0] = new ClientThompson(this);
-            WEAPONS[1] = new ClientShotgun(this);
-            WEAPONS[2] = new ClientRocketLauncher(this);
-            WEAPONS[3] = new ClientSpringfield(this);
-            WEAPONS[4] = new ClientM1Garand(this);
-            WEAPONS[5] = new ClientKar98(this);
-            WEAPONS[6] = new ClientMP44(this);
-            WEAPONS[7] = new ClientMP40(this);
-            WEAPONS[8] = new ClientPistol(this);
-            WEAPONS[9] = new ClientRisker(this);
-            WEAPONS[10] = new ClientFlameThrower(this);
-            
+            ClientWeaponFactory thompsonFactory = new ThompsonWeaponFactory(); 
+            ClientWeaponFactory shotGunFactory = new ShotgunWeaponFactory(); 
+            ClientWeaponFactory rocketLauncherFactory = new RocketLauncherFactory(); 
+            ClientWeaponFactory springFieldFactory = new SpringfieldFactory(); 
+            ClientWeaponFactory m1GarandFactory = new M1GarandFactory(); 
+            ClientWeaponFactory kar98Factory = new Kar98WeaponFactory(); 
+            ClientWeaponFactory mp44Factory = new MP44WeaponFactory(); 
+            ClientWeaponFactory mp40Factory = new MP40WeaponFactory(); 
+            ClientWeaponFactory pistolFactory = new PistolWeaponFactory(); 
+            ClientWeaponFactory riskerFactory = new RiskerWeaponFactory(); 
+            ClientWeaponFactory flameThrowerFactory = new FlameThrowerFactory(); 
+        	
+            WEAPONS[0] = thompsonFactory.create(this);
+            WEAPONS[1] = shotGunFactory.create(this);
+            WEAPONS[2] = rocketLauncherFactory.create(this);
+            WEAPONS[3] = springFieldFactory.create(this);
+            WEAPONS[4] = m1GarandFactory.create(this);
+            WEAPONS[5] = kar98Factory.create(this);
+            WEAPONS[6] = mp44Factory.create(this);
+            WEAPONS[7] = mp40Factory.create(this);
+            WEAPONS[8] = pistolFactory.create(this);
+            WEAPONS[9] = riskerFactory.create(this);
+            WEAPONS[10] = flameThrowerFactory.create(this);
+
             player.setEntity(this);
         }
     }
