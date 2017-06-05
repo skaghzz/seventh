@@ -2,24 +2,27 @@
  * see license.txt 
  */
 package seventh.ai.basic;
+
 import seventh.shared.TimeStep;
-import java.util.ArrayList;
-import java.util.List;
+
 /**
  * Just a container for all of our sensory inputs
  * 
  * @author Tony
  *
  */
-public class Sensors extends SensorSubject{
-    private List<Sensor> sensors = new ArrayList<Sensor>();
+public class Sensors {
+
+    private SightSensor sightSensor;
+    private SoundSensor soundSensor;
+    private FeelSensor feelSensor;
     
     
     
     public Sensors(Brain brain) {
-        sensors.add(new SightSensor(brain));
-        sensors.add(new SoundSensor(brain));
-        sensors.add(new FeelSensor(brain));
+        this.sightSensor = new SightSensor(brain);
+        this.soundSensor = new SoundSensor(brain);
+        this.feelSensor = new FeelSensor(brain);
     }
     
     
@@ -29,28 +32,30 @@ public class Sensors extends SensorSubject{
      * @param brain
      */
     public void reset(Brain brain) {
-    	sensors.clear();
+        this.sightSensor.reset(brain);
+        this.soundSensor.reset(brain);
+        this.feelSensor.reset(brain);
     }
     
     /**
      * @return the feelSensor
      */
     public FeelSensor getFeelSensor() {
-        return (FeelSensor)sensors.get(2);
+        return feelSensor;
     }
     
     /**
      * @return the sightSensor
      */
     public SightSensor getSightSensor() {
-        return (SightSensor)sensors.get(0);
+        return sightSensor;
     }
     
     /**
      * @return the soundSensor
      */
     public SoundSensor getSoundSensor() {
-        return (SoundSensor)sensors.get(1);
+        return soundSensor;
     }
     
     /**
@@ -58,8 +63,9 @@ public class Sensors extends SensorSubject{
      * @param timeStep
      */
     public void update(TimeStep timeStep) {
-     notifySensors(timeStep);
-     
+        this.sightSensor.update(timeStep);
+        this.soundSensor.update(timeStep);
+        this.feelSensor.update(timeStep);        
     }
         
-} 
+}
