@@ -6,10 +6,10 @@ import seventh.game.entities.Entity.Type;
 import seventh.math.Vector2f;
 import seventh.shared.SoundType;
 
-public class ThompsonFire  extends Weapon implements WeaponFire {
+public class ThompsonFire  extends Thompson implements WeaponFire {
 
-	 public ThompsonFire(Game game, Entity owner, Type type) {
-		super(game, owner, type);
+	public ThompsonFire(Game game, Entity owner) {
+		super(game, owner);
 		// TODO Auto-generated constructor stub
 	}
 	@Override

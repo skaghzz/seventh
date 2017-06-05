@@ -39,7 +39,7 @@ public class Thompson extends Weapon {
         
         applyScriptAttributes("thompson");        
         this.bulletsInClip = this.clipSize;
-        setWeaponFire(new ThompsonFire(game, owner, Type.THOMPSON));
+        setWeaponFire(new ThompsonFire(game, owner));
     }
     
 
