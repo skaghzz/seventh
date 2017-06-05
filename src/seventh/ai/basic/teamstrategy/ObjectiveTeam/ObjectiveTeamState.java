@@ -5,6 +5,10 @@ import seventh.ai.basic.actions.Action;
 
 public abstract class ObjectiveTeamState {
    public abstract String name();
-   public abstract Action getCurrentAction(Brain brain, AllObjectiveTeamStrategy OTS);
-   //public abstract Action getCurrentAction(Brain brain, OffenseObjectiveTeamStrategy OOT);
+   public Action getCurrentAction(Brain brain, AllObjectiveTeamStrategy OTS){
+      if(OTS.getZoneToAttack() != null) {
+         return OTS.getGoals().infiltrate(OTS.getZoneToAttack());
+     }
+      return null;
+   }
 }
