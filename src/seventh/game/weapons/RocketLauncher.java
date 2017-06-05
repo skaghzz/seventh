@@ -16,7 +16,7 @@ import seventh.shared.WeaponConstants;
  */
 public class RocketLauncher extends Weapon {
     
-    private boolean endFire;
+    protected boolean endFire;
     
     /**
      * @param game
@@ -34,6 +34,7 @@ public class RocketLauncher extends Weapon {
         this.weaponWeight = WeaponConstants.RPG_WEIGHT;
         
         applyScriptAttributes("rocket_launcher");
+        setWeaponFire(new RocketLauncherFire(game, owner));
     }
     
     @Override

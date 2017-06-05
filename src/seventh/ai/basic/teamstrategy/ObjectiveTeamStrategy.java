@@ -7,6 +7,8 @@ import seventh.ai.basic.Brain;
 import seventh.ai.basic.DefaultAISystem;
 import seventh.ai.basic.actions.Action;
 import seventh.ai.basic.actions.WaitAction;
+import seventh.ai.basic.teamstrategy.ObjectiveTeam.DefenseObjectiveTeamStrategy;
+import seventh.ai.basic.teamstrategy.ObjectiveTeam.OffenseObjectiveTeamStrategy;
 import seventh.game.GameInfo;
 import seventh.game.PlayerInfo;
 import seventh.game.Team;
