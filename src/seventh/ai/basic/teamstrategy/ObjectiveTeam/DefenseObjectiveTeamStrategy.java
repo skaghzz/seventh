@@ -1,7 +1,7 @@
 /*
  * see license.txt 
  */
-package seventh.ai.basic.teamstrategy;
+package seventh.ai.basic.teamstrategy.ObjectiveTeam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,46 +29,18 @@ import seventh.shared.TimeStep;
  * @author Tony
  *
  */
-public class DefenseObjectiveTeamStrategy implements TeamStrategy {
+public class DefenseObjectiveTeamStrategy extends AllObjectiveTeamStrategy {
 
-    private Team team;
-    private DefaultAISystem aiSystem;    
-    
-    private Zones zones;
-    private Randomizer random;
-    
-    private Zone zoneToAttack;
-    
-    private Stats stats;
-    private DefensiveState currentState;
-        
     private World world;
-    private Actions goals;
     
-    private long timeUntilOrganizedAttack;
     private List<PlayerEntity> playersInZone;
-    
-    enum DefensiveState {        
-        DEFUSE_BOMB,
-        ATTACK_ZONE,
-        DEFEND,
-        RANDOM,
-        DONE,
-    }
     
     /**
      * 
      */
     public DefenseObjectiveTeamStrategy(DefaultAISystem aiSystem, Team team) {
-        this.aiSystem = aiSystem;
-        this.team = team;
-        
-        this.stats = aiSystem.getStats();
-        this.zones = aiSystem.getZones();
-        this.random = aiSystem.getRandomizer();
-        
-        this.goals = aiSystem.getGoals(); 
-        this.playersInZone = new ArrayList<>();
+       super(aiSystem, team);
+       this.playersInZone = new ArrayList<>();
         
     }
     
@@ -79,81 +51,22 @@ public class DefenseObjectiveTeamStrategy implements TeamStrategy {
     public double getDesirability(Brain brain) {    
         return 0.7;
     }
-    
-    /* (non-Javadoc)
-     * @see seventh.ai.basic.teamstrategy.TeamStrategy#getGoal(seventh.ai.basic.Brain)
-     */
-    @Override
-    public Action getAction(Brain brain) {
-        return getCurrentAction(brain);
-    }
-    
-    /* (non-Javadoc)
-     * @see seventh.ai.basic.teamstrategy.TeamStrategy#getTeam()
-     */
-    @Override
-    public Team getTeam() {
-        return this.team;
-    }
 
     /* (non-Javadoc)
      * @see seventh.ai.AIGameTypeStrategy#startOfRound(seventh.game.Game)
      */
     @Override
     public void startOfRound(GameInfo game) {        
-        this.zoneToAttack = calculateZoneToAttack();    
-        this.currentState = DefensiveState.RANDOM;        
+        this.setZoneToAttack(calculateZoneToAttack());    
+        this.currentState = new Random();     
         this.timeUntilOrganizedAttack = 30_000 + random.nextInt(60_000);        
         this.world = this.aiSystem.getWorld();
     }
     
-    
-    /**
-     * @param brain
-     * @return the current marching orders
-     */
-    private Action getCurrentAction(Brain brain) {
-        Action action = null;
-        
-        if(this.zoneToAttack==null) {
-            this.zoneToAttack = calculateZoneToAttack();
-        }
-        
-        switch(this.currentState) {
-            case DEFEND:
-                if(zoneToAttack != null) {
-                    BombTarget target = getPlantedBombTarget(zoneToAttack);
-                    if(target!=null) {
-                        action = goals.defendPlantedBomb(target);
-                    }
-                    else {
-                        action = goals.defend(zoneToAttack);
-                    }
-                }
-                break;                
-            case DEFUSE_BOMB:            
-                action = goals.defuseBomb();            
-                break;
-            case RANDOM:
-                action = goals.moveToRandomSpot(brain);
-                break;
-            case ATTACK_ZONE:
-            case DONE:            
-            default:
-                if(zoneToAttack != null) {
-                    action = goals.infiltrate(zoneToAttack);
-                }
-                break;        
-        }
-        
-        return action;
-    }
-    
-    
     /**
      * @return determine which {@link Zone} to attack
      */
-    private Zone calculateZoneToAttack() {
+    protected Zone calculateZoneToAttack() {
         Zone zoneToAttack = null;
         
         List<Zone> zonesWithBombs = this.zones.getBombTargetZones();
@@ -212,50 +125,13 @@ public class DefenseObjectiveTeamStrategy implements TeamStrategy {
         return zoneToAttack;
     }
 
-    /**
-     * @param zone
-     * @return the {@link BombTarget} that has a bomb planted on it in the supplied {@link Zone}
-     */
-    private BombTarget getPlantedBombTarget(Zone zone) {
-        List<BombTarget> targets = zone.getTargets();
-        for(int i = 0; i < targets.size(); i++) {
-            BombTarget target = targets.get(i);
-            if(target.bombPlanting() || target.bombActive()) {
-                return target;
-            }
-        }
-        return null;
-    }
-    
-    /* (non-Javadoc)
-     * @see seventh.ai.basic.AIGameTypeStrategy#playerKilled(seventh.game.PlayerInfo)
-     */
-    @Override
-    public void playerKilled(PlayerInfo player) {
-    }
-    
-    /* (non-Javadoc)
-     * @see seventh.ai.basic.AIGameTypeStrategy#playerSpawned(seventh.game.PlayerInfo)
-     */
-    @Override
-    public void playerSpawned(PlayerInfo player) {
-        if(player.isBot()) {
-            Brain brain = aiSystem.getBrain(player);
-            
-            Action action = getCurrentAction(brain);
-            if(action != null) {
-                brain.getCommunicator().post(action);
-            }
-        }    
-    }
-    
     /* (non-Javadoc)
      * @see seventh.ai.AIGameTypeStrategy#endOfRound(seventh.game.Game)
      */
     @Override
     public void endOfRound(GameInfo game) {        
-        this.currentState = DefensiveState.DEFEND;
-        this.zoneToAttack = null;
+        this.currentState = new Defend();
+        this.setZoneToAttack(null);
     }
     
     /**
@@ -293,26 +169,6 @@ public class DefenseObjectiveTeamStrategy implements TeamStrategy {
         
         return bombDisarming;
     }
-    
-    /**
-     * Gives all the available Agents orders
-     */
-    private void giveOrders(DefensiveState state) {
-        if(currentState != state) {
-            currentState = state;
-            
-            List<Player> players = team.getPlayers();
-            for(int i = 0; i < players.size(); i++) {
-                Player player = players.get(i);
-                if(player.isBot() && player.isAlive()) {
-                    Brain brain = aiSystem.getBrain(player);
-                    if( !brain.getMotion().isDefusing() ) {                    
-                        brain.getCommunicator().post(getCurrentAction(brain));
-                    }
-                }
-            }
-        }
-    }
         
     /* (non-Javadoc)
      * @see seventh.ai.AIGameTypeStrategy#update(seventh.shared.TimeStep, seventh.game.Game)
@@ -322,13 +178,13 @@ public class DefenseObjectiveTeamStrategy implements TeamStrategy {
     
         /* drop everything and go disarm the bomb */
         if(isBombPlanted()) {
-            zoneToAttack = calculateZoneToAttack();
+            setZoneToAttack(calculateZoneToAttack());
             
-            if(isBombBeingDisarmed(zoneToAttack)) {
-                giveOrders(DefensiveState.ATTACK_ZONE);
+            if(isBombBeingDisarmed(getZoneToAttack())) {
+                giveOrders(new AttackZone());
             }
             else {
-                giveOrders(DefensiveState.DEFUSE_BOMB);
+                giveOrders(new DefuseBomb());
             }
         }
         else {
@@ -339,37 +195,16 @@ public class DefenseObjectiveTeamStrategy implements TeamStrategy {
             if(this.timeUntilOrganizedAttack > 0) {
                 this.timeUntilOrganizedAttack -= timeStep.getDeltaTime();
                 
-                giveOrders(DefensiveState.RANDOM);
+                giveOrders(new Random());
                 return;
             }
             
-            
-            zoneToAttack = calculateZoneToAttack();            
-            if(zoneToAttack != null) {                
-                giveOrders(DefensiveState.ATTACK_ZONE);
+            setZoneToAttack(calculateZoneToAttack());            
+            if(getZoneToAttack() != null) {                
+                giveOrders(new AttackZone());
             }
             
         }
     }
 
-    /* (non-Javadoc)
-     * @see seventh.shared.Debugable#getDebugInformation()
-     */
-    @Override
-    public DebugInformation getDebugInformation() {
-        DebugInformation me = new DebugInformation();
-        me.add("zone_to_attack", this.zoneToAttack)
-          .add("time_to_attack", this.timeUntilOrganizedAttack)
-          .add("state", this.currentState.name())
-          ;
-        return me;
-    }
-    
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return getDebugInformation().toString();
-    }
 }

@@ -39,6 +39,7 @@ public class Thompson extends Weapon {
         
         applyScriptAttributes("thompson");        
         this.bulletsInClip = this.clipSize;
+        setWeaponFire(new ThompsonFire(game, owner));
     }
     
 
@@ -73,20 +74,7 @@ public class Thompson extends Weapon {
      */
     @Override
     public boolean beginFire() {
-        if(canFire()) {
-            newBullet();
-            game.emitSound(getOwnerId(), SoundType.THOMPSON_FIRE, getPos());
-            
-            weaponTime = 1000/roundsPerSecond;
-            bulletsInClip--;
-            
-            setFireState(); 
-            return true;
-        }
-        else if (bulletsInClip <= 0 ) {                
-            setFireEmptyState();            
-        }
-
+        getWeaponFire().beginFire();
         return false;
     }
     
