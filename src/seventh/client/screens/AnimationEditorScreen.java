@@ -75,8 +75,7 @@ public class AnimationEditorScreen implements Screen {
     }
     
     
-    private void createUI() {
-        this.panelView = new PanelView();
+    private void createUI() {    	
         this.optionsPanel = new Panel();
         this.animationPanel = new Panel();
         this.steppingPanel = new Panel();
