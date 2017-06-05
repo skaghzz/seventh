@@ -31,6 +31,9 @@ import seventh.client.entities.ClientSmoke;
 import seventh.client.entities.vehicles.ClientPanzerTank;
 import seventh.client.entities.vehicles.ClientShermanTank;
 import seventh.client.entities.vehicles.ClientVehicle;
+import seventh.client.entities.vehicles.PanzerTankFactory;
+import seventh.client.entities.vehicles.ShermanTankFactory;
+import seventh.client.entities.vehicles.TankFactory;
 import seventh.client.gfx.Camera;
 import seventh.client.gfx.Camera2d;
 import seventh.client.gfx.Canvas;
@@ -1087,12 +1090,16 @@ public class ClientGame {
                 break;
             }
             case SHERMAN_TANK: {
-                entity = new ClientShermanTank(this, pos);
+            	TankFactory factory = new ShermanTankFactory();
+            	entity = factory.create(this, pos);
+                //entity = new ClientShermanTank(this, pos);
                 vehicles.add( (ClientVehicle)entity );
                 break;
             }
             case PANZER_TANK: {
-                entity = new ClientPanzerTank(this, pos);
+            	TankFactory factory = new PanzerTankFactory();
+            	entity = factory.create(this, pos);
+                //entity = new ClientPanzerTank(this, pos);
                 vehicles.add( (ClientVehicle)entity );
                 break;
             }
