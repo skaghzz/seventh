@@ -18,12 +18,12 @@ import seventh.shared.WeaponConstants;
  */
 public class Shotgun extends Weapon {
 
-    private int numberOfPellets;
-    private int nextShotTime;    
-    private boolean reloading;
+    protected int numberOfPellets;
+    protected int nextShotTime;    
+    protected boolean reloading;
     
-    private boolean wasReloading;
-    private boolean endFire;
+    protected boolean wasReloading;
+    protected boolean endFire;
     
     /**
      * @param game
@@ -47,6 +47,7 @@ public class Shotgun extends Weapon {
         this.endFire = true;
         
         applyScriptAttributes("shotgun");
+        setWeaponFire(new ShotgunFire(game, owner));
     }
     
 
@@ -115,28 +116,7 @@ public class Shotgun extends Weapon {
      */
     @Override
     public boolean beginFire() {
-        if ( canFire() ) {
-            for(int i = 0; i < numberOfPellets; i++) {
-                newBullet();
-            }
-            
-            game.emitSound(getOwnerId(), SoundType.SHOTGUN_FIRE, getPos());
-            game.emitSound(getOwnerId(), SoundType.SHOTGUN_PUMP, getPos());
-                        
-            bulletsInClip--;
-            weaponTime = nextShotTime;
-                    
-            setFireState(); 
-            return true;
-        }
-        else if (reloading) {
-            reloading = false;
-        }
-        else if (bulletsInClip <= 0 ) {
-            setFireEmptyState();            
-        }
-                
-        this.endFire = false;
+        getWeaponFire().beginFire();
         return false;
     }
     
@@ -145,13 +125,13 @@ public class Shotgun extends Weapon {
      */
     @Override
     public boolean endFire() {
-        this.endFire = true;
+    	getWeaponFire().endFire();
         return false;
     }
     
     @Override
     public boolean canFire() {    
-        return super.canFire() && this.endFire;
+        return getWeaponFire().canFire();
     }
     
     /**

@@ -24,7 +24,7 @@ import seventh.shared.TimeStep;
  * @author Tony
  *
  */
-public abstract class Weapon {
+public abstract class Weapon implements WeaponFire{
     
     public enum State {
         READY,
@@ -85,6 +85,7 @@ public abstract class Weapon {
                   rocketSpawnDistance, 
                   grenadeSpawnDistance;
     
+    private WeaponFire weaponFire;
     /**     
      * @param game
      * @param owner
@@ -360,6 +361,7 @@ public abstract class Weapon {
      * Invoked for when the trigger is held down
      * @return true if the weapon discharged
      */
+    @Override
     public boolean beginFire() {
         return false;
     }
@@ -368,6 +370,7 @@ public abstract class Weapon {
      * Invoked when the trigger is done being pulled.
      * @return true if the weapon discharged
      */
+    @Override
     public boolean endFire() { 
         return false;
     }
@@ -375,6 +378,7 @@ public abstract class Weapon {
     /**
      * @return true if this weapon is loaded and ready to fire
      */
+    @Override
     public boolean canFire() {
         return weaponTime <= 0 && bulletsInClip > 0;
     }
@@ -652,4 +656,11 @@ public abstract class Weapon {
         return this.netWeapon;
     }
     
+	public WeaponFire getWeaponFire() {
+		return weaponFire;
+	}
+
+	public void setWeaponFire(WeaponFire weaponFire) {
+		this.weaponFire = weaponFire;
+	}
 }
